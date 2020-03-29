@@ -201,6 +201,7 @@ func doDownload(pathTarget string, downloadUrl string, expectedSize int64) (bool
 	case 504:
 		return true, errors.New("server was not available")
 	default:
+		os.Remove(pathTarget)
 		errorContent, _ := ioutil.ReadAll(dlResponse.Body)
 		log.Printf("ERROR DownloadManager.PerformDownload server responded %d: %s", dlResponse.StatusCode, string(errorContent))
 		return false, errors.New("server error")

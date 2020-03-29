@@ -21,10 +21,8 @@ func enqueueDownloads(entriesListPtr *[]communicator.ArchiveEntryDownloadSynopsi
 
 func main() {
 	log.Printf("autopull v0.1 Andy Gallagher. https://github.com/guardian/autopull")
-	pwd, _ := os.Getwd()
 	configFilePtr := flag.String("config", "autopull.yaml", "Path to a yaml config file")
-	downloadPathPtr := flag.String("to", pwd, "Download path")
-	allowOverwritePtr := flag.Bool("overwrite", false, "allow overwriting of existing files")
+	downloadPathPtr := flag.String("to", "", "Download path")
 	flag.Parse()
 
 	if configFilePtr == nil {
@@ -89,7 +87,27 @@ func main() {
 	totalFiles, totalBytes := downloadInfo.TotalUpEntries()
 	log.Printf("INFO main Will try to download a total of %d files totalling %s", totalFiles, FormatByteSize(totalBytes, 0))
 
-	mgr := downloadmanager.NewDownloadManager(&comm, downloadInfo.RetrievalToken, 1, 10, *downloadPathPtr, *allowOverwritePtr)
+	threadCount := configuration.DownloadThreads
+	if threadCount == 0 {
+		threadCount = 5
+	}
+
+	dlQueueBufferSize := configuration.QueueBufferSize
+	if dlQueueBufferSize == 0 {
+		dlQueueBufferSize = 10
+	}
+
+	var downloadPath string
+	if downloadPathPtr != nil && *downloadPathPtr != "" {
+		downloadPath = *downloadPathPtr
+	} else if configuration.DownloadPath != "" {
+		downloadPath = configuration.DownloadPath
+	} else {
+		log.Printf("ERROR main no download path has been set. Try setting `download_path: yourpath` in the settings file")
+		os.Exit(7)
+	}
+
+	mgr := downloadmanager.NewDownloadManager(&comm, downloadInfo.RetrievalToken, threadCount, dlQueueBufferSize, downloadPath, configuration.AllowOverwrite)
 
 	initErr := mgr.Init()
 	if initErr != nil {

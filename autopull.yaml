@@ -1,1 +1,6 @@
-vaultdoor_uri: https://vaultdoor.gnm.int
+#vaultdoor_uri: https://vaultdoor.gnm.int
+vaultdoor_uri: http://192.168.1.64:9000
+#download_threads: 5  # how many concurrent downloads to run. Defaults to 5.
+#queue_buffer_size: 10  #internal setting, how many items to buffer. should not need to change this.
+#allow_overwrite: false   #set this to "yes" or "true" to allow overwriting of destination files
+#download_path: /home/andy

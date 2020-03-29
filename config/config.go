@@ -1,14 +1,17 @@
 package config
 
 import (
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
-	"gopkg.in/yaml.v2"
 )
 
 type Configuration struct {
-	VaultDoorUri string `yaml:"vaultdoor_uri"`
-
+	VaultDoorUri    string `yaml:"vaultdoor_uri"`
+	DownloadThreads int    `yaml:"download_threads"`  //defaults to 5 if not specified
+	QueueBufferSize int    `yaml:"queue_buffer_size"` //defaults to 10 if not specified
+	AllowOverwrite  bool   `yaml:"allow_overwrite"`   //defaults to false
+	DownloadPath    string `yaml:"download_path"`     //path to download to. Can be overridden on the commandline.
 }
 
 func LoadConfig(path string) (*Configuration, error) {
