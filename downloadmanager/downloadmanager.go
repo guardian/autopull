@@ -3,7 +3,6 @@ package downloadmanager
 import (
 	"errors"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/guardian/autopull/communicator"
 	"io"
 	"io/ioutil"
@@ -85,7 +84,6 @@ func (d *DownloadManagerImpl) DownloadThread() {
 	for {
 		select {
 		case incomingEntry := <-d.incomingChannel:
-			log.Printf("got %s", spew.Sdump(incomingEntry))
 			if incomingEntry.EntryId == "" {
 				log.Printf("INFO DownloadManager.DownloadThread terminating")
 				d.waitGroup.Done()
@@ -145,7 +143,7 @@ func prepareDirectories(pathTarget string) error {
 		log.Printf("WARN file without any subdirectory: %s", pathTarget)
 		return nil
 	} else {
-		log.Printf("DEBUG creating directory for %s", dirname)
+		//log.Printf("DEBUG creating directory for %s", dirname)
 		err := os.MkdirAll(dirname, 0755)
 		if err != nil {
 			if !os.IsExist(err) {
@@ -225,7 +223,7 @@ func makeAbsoluteUrl(baseUri url.URL, tailUri url.URL) (url.URL, error) {
 func (d *DownloadManagerImpl) PerformDownload(incomingEntry *communicator.ArchiveEntryDownloadSynopsis, linkInfo *communicator.DownloadManagerItemResponse) error {
 	pathTarget := filepath.Join(d.BasePath, incomingEntry.Path)
 
-	log.Printf("DEBUG DownloadManager.PerformDownload pathTarget is %s", pathTarget)
+	//log.Printf("DEBUG DownloadManager.PerformDownload pathTarget is %s", pathTarget)
 
 	downloadUri, _ := makeAbsoluteUrl(d.Communicator.VaultDoorUri, linkInfo.DownloadLink)
 	//verify if a file already exists
