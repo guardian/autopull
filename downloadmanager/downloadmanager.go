@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
@@ -139,12 +140,11 @@ func verifyFile(pathTarget string, canClobber bool) error {
 }
 
 func prepareDirectories(pathTarget string) error {
-	pathParts := strings.Split(pathTarget, string(os.PathSeparator))
-	if len(pathParts) == 0 {
+	dirname := filepath.Dir(pathTarget)
+	if len(dirname) == 0 {
 		log.Printf("WARN file without any subdirectory: %s", pathTarget)
 		return nil
 	} else {
-		dirname := strings.Join(pathParts[0:len(pathParts)-1], string(os.PathSeparator))
 		log.Printf("DEBUG creating directory for %s", dirname)
 		err := os.MkdirAll(dirname, 0755)
 		if err != nil {
@@ -208,12 +208,6 @@ func doDownload(pathTarget string, downloadUrl string, expectedSize int64) (bool
 }
 
 func makeAbsoluteUrl(baseUri url.URL, tailUri url.URL) (url.URL, error) {
-	//tailUri, parseErr := url.Parse(tailUriString)
-	//if parseErr!=nil {
-	//	log.Printf("ERROR DownloadManager.makeAbsoluteUrl invalid tail uri %s", tailUriString)
-	//	return url.URL{}, parseErr
-	//}
-
 	rtn := url.URL{
 		Scheme:     baseUri.Scheme,
 		Opaque:     baseUri.Opaque,
@@ -228,13 +222,7 @@ func makeAbsoluteUrl(baseUri url.URL, tailUri url.URL) (url.URL, error) {
 }
 
 func (d *DownloadManagerImpl) PerformDownload(incomingEntry *communicator.ArchiveEntryDownloadSynopsis, linkInfo *communicator.DownloadManagerItemResponse) error {
-	pathParts := []string{
-		d.BasePath,
-		incomingEntry.Path,
-	}
-
-	removeDupSlash := regexp.MustCompile("/{2+}")
-	pathTarget := removeDupSlash.ReplaceAllString(strings.Join(pathParts, string(os.PathSeparator)), "/")
+	pathTarget := filepath.Join(d.BasePath, incomingEntry.Path)
 
 	log.Printf("DEBUG DownloadManager.PerformDownload pathTarget is %s", pathTarget)
 
