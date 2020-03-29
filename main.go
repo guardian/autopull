@@ -5,17 +5,26 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/guardian/autopull/communicator"
 	"github.com/guardian/autopull/config"
+	"github.com/guardian/autopull/downloadmanager"
 	"log"
 	"net/url"
 	"os"
 	"strings"
+	"time"
 )
+
+func enqueueDownloads(entriesListPtr *[]communicator.ArchiveEntryDownloadSynopsis, mgr downloadmanager.DownloadManager) {
+	for _, ent := range *entriesListPtr {
+		mgr.Enqueue(ent)
+	}
+}
 
 func main() {
 	log.Printf("autopull v0.1 Andy Gallagher. https://github.com/guardian/autopull")
 	pwd, _ := os.Getwd()
 	configFilePtr := flag.String("config", "autopull.yaml", "Path to a yaml config file")
 	downloadPathPtr := flag.String("to", pwd, "Download path")
+	allowOverwritePtr := flag.Bool("overwrite", false, "allow overwriting of existing files")
 	flag.Parse()
 
 	if configFilePtr == nil {
@@ -79,4 +88,19 @@ func main() {
 
 	totalFiles, totalBytes := downloadInfo.TotalUpEntries()
 	log.Printf("INFO main Will try to download a total of %d files totalling %s", totalFiles, FormatByteSize(totalBytes, 0))
+
+	mgr := downloadmanager.NewDownloadManager(&comm, downloadInfo.RetrievalToken, 1, 10, *downloadPathPtr, *allowOverwritePtr)
+
+	initErr := mgr.Init()
+	if initErr != nil {
+		log.Printf("ERROR main Could not initialise download manager: %s", initErr)
+		os.Exit(6)
+	}
+
+	time.Sleep(1 * time.Second)
+	enqueueDownloads(&downloadInfo.Entries, mgr)
+
+	log.Printf("DEBUG main enqueued items, waiting for download threads")
+	time.Sleep(5 * time.Second)
+	mgr.Shutdown(true)
 }
