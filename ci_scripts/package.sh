@@ -20,6 +20,8 @@ cd /tmp/autopull-win
 
 zip -r autopull-win.zip autopull/*
 mv autopull-win.zip "$SCRIPT_DIR/.." || echo Could not move zipfile
+
+cd "$SCRIPT_DIR/.."
 rm -rf /tmp/autopull-win
 
 if [ ! -f autopull.linux64 ]; then
@@ -35,4 +37,5 @@ cd /tmp/autopull-lin
 
 zip -r autopull-lin.zip autopull/*
 mv autopull-lin.zip "$SCRIPT_DIR/.." || echo Could not move zipfile
+cd "$SCRIPT_DIR/.."
 rm -rf /tmp/autopull-lin
