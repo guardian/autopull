@@ -14,7 +14,8 @@ fi
 mkdir -p /tmp/autopull-win/autopull
 cp autopull.exe /tmp/autopull-win/autopull
 cp autopull.yaml /tmp/autopull-win/autopull
-cp install_handler.ps1 /tmp/autopull-win/autopull
+cp AutoPull_install.ps1 /tmp/autopull-win/autopull
+cp AutoPull_uninstall.ps1 /tmp/autopull-win/autopull
 
 cd /tmp/autopull-win
 
