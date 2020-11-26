@@ -223,9 +223,16 @@ func makeAbsoluteUrl(baseUri url.URL, tailUri url.URL) (url.URL, error) {
 func (d *DownloadManagerImpl) PerformDownload(incomingEntry *communicator.ArchiveEntryDownloadSynopsis, linkInfo *communicator.DownloadManagerItemResponse) error {
 	pathTarget := filepath.Join(d.BasePath, incomingEntry.Path)
 
-	//log.Printf("DEBUG DownloadManager.PerformDownload pathTarget is %s", pathTarget)
+	log.Printf("DEBUG DownloadManager.PerformDownload pathTarget is %s, linkInfo is %v", pathTarget, linkInfo)
 
-	downloadUri, _ := makeAbsoluteUrl(d.Communicator.VaultDoorUri, linkInfo.DownloadLink)
+	//downloadUri, _ := makeAbsoluteUrl(d.Communicator.VaultDoorUri, linkInfo.DownloadLink)
+	var downloadUri url.URL
+	if d.Communicator.Type == communicator.VaultDoor {
+		downloadUri, _ = makeAbsoluteUrl(d.Communicator.VaultDoorUri, linkInfo.DownloadLink)
+	} else {
+		downloadUri = linkInfo.DownloadLink
+	}
+
 	//verify if a file already exists
 	verifyErr := verifyFile(pathTarget, d.CanClobber)
 	if verifyErr != nil {

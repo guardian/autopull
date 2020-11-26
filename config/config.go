@@ -8,12 +8,13 @@ import (
 )
 
 type Configuration struct {
-	VaultDoorUri    string `yaml:"vaultdoor_uri"`
-	DownloadThreads int    `yaml:"download_threads"`  //defaults to 5 if not specified
-	QueueBufferSize int    `yaml:"queue_buffer_size"` //defaults to 10 if not specified
-	AllowOverwrite  bool   `yaml:"allow_overwrite"`   //defaults to false
-	DownloadPath    string `yaml:"download_path"`     //path to download to. Can be overridden on the commandline.
-	NoWait          bool   `yaml:"immediate_exit"`    //set to False on windows so you can see the result before the window shuts
+	VaultDoorUri     string `yaml:"vaultdoor_uri"`
+	ArchiveHunterUri string `yaml:"archivehunter_uri"`
+	DownloadThreads  int    `yaml:"download_threads"`  //defaults to 5 if not specified
+	QueueBufferSize  int    `yaml:"queue_buffer_size"` //defaults to 10 if not specified
+	AllowOverwrite   bool   `yaml:"allow_overwrite"`   //defaults to false
+	DownloadPath     string `yaml:"download_path"`     //path to download to. Can be overridden on the commandline.
+	NoWait           bool   `yaml:"immediate_exit"`    //set to False on windows so you can see the result before the window shuts
 }
 
 func LoadConfig(path string) (conf *Configuration, err error) {

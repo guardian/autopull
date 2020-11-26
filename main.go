@@ -60,9 +60,15 @@ func main() {
 		ExitPause(nowait, 3)
 	}
 
-	parsedUrl, parseErr := url.Parse(configuration.VaultDoorUri)
+	vaultdoorUrl, parseErr := url.Parse(configuration.VaultDoorUri)
 	if parseErr != nil {
-		log.Printf("ERROR main could not parse server uri %s: %s", configuration.VaultDoorUri, parseErr)
+		log.Printf("ERROR main could not parse VaultDoor uri %s: %s", configuration.VaultDoorUri, parseErr)
+		ExitPause(configuration.NoWait, 4)
+	}
+
+	archivehunterUrl, parseErr := url.Parse(configuration.ArchiveHunterUri)
+	if parseErr != nil {
+		log.Printf("ERROR main could not parse ArchiveHunter uri %s: %s", configuration.ArchiveHunterUri, parseErr)
 		ExitPause(configuration.NoWait, 4)
 	}
 
@@ -84,8 +90,8 @@ func main() {
 			log.Printf("ERROR main provided URI was not properly formed: %s", parseErr)
 			ExitPause(configuration.NoWait, 5)
 		}
-		if !downloadToken.ValidateVaultDoor() {
-			log.Printf("ERROR main parsed custom URI but it is not valid for VaultDoor")
+		if !downloadToken.ValidateVaultDoor() && !downloadToken.ValidateArchiveHunter() {
+			log.Printf("ERROR main parsed custom URI but it is not valid for VaultDoor nor ArchiveHunter")
 			ExitPause(configuration.NoWait, 5)
 		}
 	} else {
@@ -98,9 +104,16 @@ func main() {
 
 	log.Printf("INFO main Download token is %s", downloadToken)
 
-	comm := communicator.Communicator{VaultDoorUri: *parsedUrl}
+	var commType communicator.CommunicatorType
+	if downloadToken.ValidateVaultDoor() {
+		commType = communicator.VaultDoor
+	} else if downloadToken.ValidateArchiveHunter() {
+		commType = communicator.ArchiveHunter
+	}
 
-	downloadInfo, redeemErr := comm.RedeemToken(downloadToken.Token, 1)
+	comm := communicator.Communicator{VaultDoorUri: *vaultdoorUrl, ArchiveHunterUri: *archivehunterUrl, Type: commType}
+
+	downloadInfo, redeemErr := comm.RedeemToken(downloadToken, 1)
 	if redeemErr != nil {
 		log.Printf("ERROR main could not redeem download token: %s", redeemErr)
 		ExitPause(configuration.NoWait, 5)
