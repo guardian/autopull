@@ -52,7 +52,8 @@ func ParseDownloadManagerItemResponse(from []byte) (*DownloadManagerItemResponse
 gets the download link for the given item or an error
 */
 func (comm *Communicator) GetItemLink(longLivedToken string, fileId string, attempt int) (*DownloadManagerItemResponse, error) {
-	url := fmt.Sprintf("%s/api/bulk/%s/get/%s", comm.VaultDoorUri.String(), longLivedToken, fileId)
+	serverBase := comm.GetActiveUrl()
+	url := fmt.Sprintf("%s/api/bulk/%s/get/%s", serverBase.String(), longLivedToken, fileId)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Printf("ERROR communicator.GetItemLink could not establish connection: %s", err)

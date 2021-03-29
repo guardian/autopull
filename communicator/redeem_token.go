@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/guardian/autopull/config"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,10 +13,16 @@ import (
 
 /**
 redeems the short-lived token and returns a pointer to the decoded response, or returns an error
- */
-func (comm *Communicator) RedeemToken(token string, attempt int) (*BulkDownloadInitiateResponse, error) {
+*/
+func (comm *Communicator) RedeemToken(token config.DownloadTokenUri, attempt int) (*BulkDownloadInitiateResponse, error) {
 	client := http.Client{}
-	url := fmt.Sprintf("%s/api/bulk/%s", comm.VaultDoorUri.String(), token)
+	var url string
+	if token.ValidateVaultDoor() {
+		url = fmt.Sprintf("%s/api/bulk/%s", comm.VaultDoorUri.String(), token.Token)
+	} else {
+		url = fmt.Sprintf("%s/api/bulk/%s", comm.ArchiveHunterUri.String(), token.Token)
+	}
+
 	resp, err := client.Get(url)
 
 	if err != nil {
@@ -44,12 +51,12 @@ func (comm *Communicator) RedeemToken(token string, attempt int) (*BulkDownloadI
 	case 503:
 		fallthrough
 	case 504:
-		if attempt>10 {
+		if attempt > 10 {
 			log.Printf("ERROR communicator.RedeemToken Server is not available after %d attempts, giving up.", attempt)
 			return nil, errors.New("server was not available")
 		}
 		log.Printf("ERROR communicator.RedeemToken Server is not available on attempt %d. Retrying after a delay...", attempt)
-		time.Sleep(5*time.Second)
+		time.Sleep(5 * time.Second)
 		return comm.RedeemToken(token, attempt)
 	default:
 		log.Printf("ERROR communicator.RedeemToken Server returned %d: %s", resp.StatusCode, string(bodyContent))
