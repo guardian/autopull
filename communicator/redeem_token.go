@@ -30,6 +30,7 @@ func asyncStreamingRetrieveContent(resp io.Reader) (chan *ArchiveEntryDownloadSy
 				if unmarshalErr != nil {
 					errCh <- unmarshalErr
 				} else {
+					log.Printf("DEBUG asyncStreamingRetrieveContent got %v", entry)
 					outputCh <- &entry
 				}
 			} else {
@@ -94,6 +95,7 @@ func (comm *Communicator) FetchDownloadSynopsisStreaming(partialResponse *BulkDo
 	} else {
 		copiedResponse := *partialResponse
 		copiedResponse.Entries = *entriesPtr
+		log.Printf("DEBUG FetchDownloadSynopsisStreaming got final result %v", copiedResponse)
 		return &copiedResponse, nil
 	}
 }

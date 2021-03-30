@@ -172,7 +172,7 @@ func doDownload(pathTarget string, downloadUrl string, expectedSize int64) (bool
 
 	switch dlResponse.StatusCode {
 	case 200:
-		log.Printf("INFO DownloadManager.PerformDownload downloading %s to %s", downloadUrl, pathTarget)
+		//log.Printf("INFO DownloadManager.PerformDownload downloading %s to %s", downloadUrl, pathTarget)
 		bytesCopied, copyErr := io.Copy(file, dlResponse.Body)
 		if copyErr != nil {
 			log.Printf("ERROR DownloadManager.PerformDownload download of %s failed: %s", pathTarget, copyErr)
